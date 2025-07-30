@@ -142,30 +142,33 @@ def print_statistics(stats: dict):
     Args:
         stats (dict): Dictionary containing game statistics
     """
-    print(f"\n{Fore.CYAN}{Style.BRIGHT}📊 GAME STATISTICS 📊{Style.RESET_ALL}")
-    print("=" * 30)
-    
-    if 'games_played' in stats:
-        print(f"Games Played: {stats['games_played']}")
-    
-    if 'games_won' in stats:
-        win_rate = (stats['games_won'] / stats['games_played']) * 100 if stats['games_played'] > 0 else 0
-        print(f"Games Won: {stats['games_won']} ({win_rate:.1f}%)")
-    
-    if 'current_streak' in stats:
-        print(f"Current Streak: {stats['current_streak']}")
-    
-    if 'max_streak' in stats:
-        print(f"Max Streak: {stats['max_streak']}")
-    
-    if 'guess_distribution' in stats:
-        print(f"\n{Fore.YELLOW}Guess Distribution:{Style.RESET_ALL}")
-        for i in range(1, 7):
-            count = stats['guess_distribution'].get(i, 0)
-            bar = "█" * count if count > 0 else "░"
-            print(f"{i}: {bar} {count}")
-    
-    print("=" * 30)
+    try:
+        print(f"\n{Fore.CYAN}{Style.BRIGHT}📊 GAME STATISTICS 📊{Style.RESET_ALL}")
+        print("=" * 30)
+        
+        if 'games_played' in stats:
+            print(f"Games Played: {stats['games_played']}")
+        
+        if 'games_won' in stats:
+            win_rate = (stats['games_won'] / stats['games_played']) * 100 if stats['games_played'] > 0 else 0
+            print(f"Games Won: {stats['games_won']} ({win_rate:.1f}%)")
+        
+        if 'current_streak' in stats:
+            print(f"Current Streak: {stats['current_streak']}")
+        
+        if 'max_streak' in stats:
+            print(f"Max Streak: {stats['max_streak']}")
+        
+        if 'guess_distribution' in stats:
+            print(f"\n{Fore.YELLOW}Guess Distribution:{Style.RESET_ALL}")
+            for i in range(1, 7):
+                count = stats['guess_distribution'].get(i, 0)
+                bar = "█" * count if count > 0 else "░"
+                print(f"{i}: {bar} {count}")
+        
+        print("=" * 30)
+    except Exception as e:
+        print(f"⚠️  Could not display statistics: {e}")
 
 
 def clear_screen():

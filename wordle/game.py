@@ -47,7 +47,11 @@ class WordleGame:
         try:
             if os.path.exists(self.stats_file):
                 with open(self.stats_file, 'r') as f:
-                    return json.load(f)
+                    stats = json.load(f)
+                    # Ensure all required keys exist
+                    if 'guess_distribution' not in stats:
+                        stats['guess_distribution'] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+                    return stats
         except Exception as e:
             print(f"⚠️  Could not load statistics: {e}")
         
@@ -77,17 +81,24 @@ class WordleGame:
             won (bool): Whether the game was won
             attempts (int): Number of attempts taken
         """
-        self.stats['games_played'] += 1
-        
-        if won:
-            self.stats['games_won'] += 1
-            self.stats['current_streak'] += 1
-            self.stats['max_streak'] = max(self.stats['max_streak'], self.stats['current_streak'])
-            self.stats['guess_distribution'][attempts] += 1
-        else:
-            self.stats['current_streak'] = 0
-        
-        self.save_statistics()
+        try:
+            self.stats['games_played'] += 1
+            
+            if won:
+                self.stats['games_won'] += 1
+                self.stats['current_streak'] += 1
+                self.stats['max_streak'] = max(self.stats['max_streak'], self.stats['current_streak'])
+                # Ensure the attempts key exists in guess_distribution
+                if attempts not in self.stats['guess_distribution']:
+                    self.stats['guess_distribution'][attempts] = 0
+                self.stats['guess_distribution'][attempts] += 1
+            else:
+                self.stats['current_streak'] = 0
+            
+            self.save_statistics()
+        except Exception as e:
+            print(f"⚠️  Warning: Could not update statistics: {e}")
+            # Continue the game even if statistics fail
     
     def start_new_game(self):
         """Start a new game with a random target word."""
@@ -199,7 +210,10 @@ class WordleGame:
                         break
                 
                 # Ask if player wants to play again
-                print_statistics(self.stats)
+                try:
+                    print_statistics(self.stats)
+                except Exception as e:
+                    print(f"⚠️  Warning: Could not display statistics: {e}")
                 
                 play_again = get_user_input("\nPlay again? (y/n): ").lower()
                 if play_again not in ['y', 'yes', 'yeah', 'sure']:
@@ -211,6 +225,7 @@ class WordleGame:
             print("\n\n👋 Game interrupted. Goodbye!")
         except Exception as e:
             print(f"\n❌ An error occurred: {e}")
+            print("The game will continue despite this error.")
     
     def get_hint(self) -> str:
         """
